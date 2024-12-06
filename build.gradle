@@ -1,0 +1,84 @@
+plugins {
+	id 'fabric-loom' version '1.8-SNAPSHOT'
+	id 'maven-publish'
+}
+
+version = project.mod_version
+group = project.maven_group
+
+base {
+	archivesName = project.archives_base_name
+}
+
+repositories {
+	maven {
+		url "https://cursemaven.com"
+	}
+	flatDir {
+		dirs 'libs'
+	}
+}
+
+loom {
+    splitEnvironmentSourceSets()
+
+    mods {
+        "modid" {
+            sourceSet sourceSets.main
+            sourceSet sourceSets.client
+        }
+    }
+
+}
+
+dependencies {
+	minecraft "com.mojang:minecraft:${project.minecraft_version}"
+	mappings loom.officialMojangMappings()
+	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	modImplementation "hamster:hamsters-fabric:1.1.0-1.20.1"
+
+	modImplementation "curse.maven:reborncore-237903:4708961"
+	modImplementation "curse.maven:cloth-config-348521:5729104"
+	modImplementation "curse.maven:astrocraft-mod-1010757:5842026"
+	modImplementation "curse.maven:solar-apocalypse-refabricated-480660:5917865"
+	modImplementation "curse.maven:geckolib-388172:5675212"
+	modImplementation "curse.maven:create-fabric-624165:5958511"
+}
+
+processResources {
+	inputs.property "version", project.version
+
+	filesMatching("fabric.mod.json") {
+		expand "version": project.version
+	}
+}
+
+tasks.withType(JavaCompile).configureEach {
+	it.options.release = 17
+}
+
+java {
+	withSourcesJar()
+
+	sourceCompatibility = JavaVersion.VERSION_17
+	targetCompatibility = JavaVersion.VERSION_17
+}
+
+jar {
+	from("LICENSE") {
+		rename { "${it}_${project.archivesBaseName}"}
+	}
+}
+
+publishing {
+	publications {
+		mavenJava(MavenPublication) {
+			from components.java
+		}
+	}
+
+	repositories {
+	}
+}
